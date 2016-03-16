@@ -1,0 +1,3 @@
+1. Functional calculator on JavaScript, don't use any 3rd party JavaScript libraries;
+2. Fonts should look similar to screenshot;
+3. Easily skinnable sass (easy to change colors/fonts/sizes in one place).

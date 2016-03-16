@@ -1,0 +1,21 @@
+@import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+
+//Font
+$base-font-family: 'Droid Serif', serif;
+$base-font-size: 1.4rem;
+$base-font-color: #333;
+$base-line-height: $base-font-size + .2rem;
+
+//Container params
+$grid-size: 10rem;
+
+$container-width: $grid-size * 4;
+$container-height: $grid-size * 4;
+$base-background-color: #fff;
+$base-border-size: .2rem;
+$base-border-color: #000;
+$base-box-shadow-size: 1rem;
+
+//Buttons params
+$base-button-color: #ccc;
+$base-button-color-darker: #777;

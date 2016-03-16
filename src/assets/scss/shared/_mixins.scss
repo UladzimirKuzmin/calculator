@@ -1,0 +1,4 @@
+//Mixins
+@mixin box-sizing($param: border-box) {
+	box-sizing: $param;
+}
