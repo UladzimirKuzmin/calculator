@@ -1,6 +1,6 @@
 # Calculator
 
-Installation guide for compiling assets
+Installation guide to compile application
 ------------
 
 Install nodejs using instructions here: https://nodejs.org/en/download/package-manager/
