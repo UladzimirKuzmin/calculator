@@ -42,6 +42,15 @@ require(['lodash'], function(_) { //jshint ignore:line
         var result;
 
         if (parenthesisFlag && typeof btn !== 'undefined') {
+          if (btn.text === '+/-') {
+            if (/-[0-9]+/.test(_self.intermediateStack[_self.intermediateStack.length - 1])) {
+            _self.intermediateStack[_self.intermediateStack.length - 1] = Math.abs(_self.intermediateStack[_self.intermediateStack.length - 1]);  
+            } else {
+            _self.intermediateStack[_self.intermediateStack.length - 1] = '-' + parseFloat(_self.intermediateStack[_self.intermediateStack.length - 1]); 
+            }
+            return; 
+          }
+
           if (_self.intermediateStack.length === 3) {
             result = calculate(_self.intermediateStack);
             _self.intermediateStack = [];
@@ -196,7 +205,6 @@ require(['lodash'], function(_) { //jshint ignore:line
           case '÷':
           case '√':
             handleDisplayInput(btn);
-
             if (parenthesisFlag) {
               handleIntermediateOperation(btn);
             } else {
@@ -204,7 +212,6 @@ require(['lodash'], function(_) { //jshint ignore:line
               operationFlag = true;
               handleOperation(btn);
             }
-
             break;
           case '%':
             percentageFlag = true;
@@ -228,7 +235,11 @@ require(['lodash'], function(_) { //jshint ignore:line
             break;
           case '+/-':
             handleDisplayInput(btn);
-            handleOperation(btn);
+            if (parenthesisFlag) {
+              handleIntermediateOperation(btn);
+            } else {
+              handleOperation(btn);  
+            }
             break;
           default: 
             if (parenthesisFlag) {
