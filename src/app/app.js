@@ -4,12 +4,12 @@ require(['lodash'], function(_) { //jshint ignore:line
   (function() {
     
     function Calculator() {
-      var ctrl = this, 
-          handleOperationPress,
-          calculate,
+      var _self = this,
+          lastSymbol,
           displayLength = 13,
-          opFlag = false,
-          eqFlag = false,
+          operationFlag = false,
+          equalsFlag = false,
+          parenthesisFlag = false,
           methods = {
           '+': function(a, b) {
             return a + b;
@@ -31,7 +31,66 @@ require(['lodash'], function(_) { //jshint ignore:line
           }
         };
 
+      function handleIntermediateOperation(btn) {
+        if (parenthesisFlag && typeof btn !== 'undefined') {
+          _self.intermediateStack.push(btn.text);
+        }
+      }
+
+      function handleOperation(btn) {
+        var result;
+
+        if (operationFlag && !equalsFlag && _self.inputStack.length) {
+          _self.inputStack.push(btn.text);
+          return;
+        } 
+
+        if (!operationFlag && !equalsFlag && !_self.inputStack.length) {
+          _self.inputStack.push(btn.text);
+          return;
+        }
+
+        if (!operationFlag && !equalsFlag && _self.inputStack.length) {
+          _self.inputStack[_self.inputStack.length - 1] = _self.inputStack[_self.inputStack.length - 1] + btn.text;
+          return;
+        }
+
+        if (equalsFlag) {
+          result = calculate(_self.inputStack);
+          _self.displayText = result.toString();
+
+          _self.inputStack = [];
+          _self.inputStack.push(result);
+
+          equalsFlag = false;
+        }
+      }  
+
+      function calculate(stack) {
+        var a = +stack[0],
+            op = stack[1],
+            b = +stack[2];  
+
+        if (!methods[op] || isNaN(a) || isNaN(b)) {
+          return 'Error';
+        }
+
+        return methods[op](+a, +b);
+      }
+
+      function handleDisplayInput(btn) {
+        if (btn.class === 'operation' && lastSymbol.class === 'operation' && btn.text !== '(' && btn.text !== ')') {
+          _self.displayText = _self.displayText.slice(0, -1);
+          _self.displayText = (_self.displayText + btn.text).slice(0, displayLength);
+        } else {
+          _self.displayText = (_self.displayText + btn.text).slice(0, displayLength);
+        }
+ 
+        lastSymbol = btn;  
+      }
+
       this.displayText = '';
+      this.intermediateStack = [];
       this.inputStack = [];
 
       this.buttons = [
@@ -62,7 +121,7 @@ require(['lodash'], function(_) { //jshint ignore:line
       ];
 
       this.press = function(i) {
-        var btn = this.buttons[i];
+        var btn = _self.buttons[i];
         
         switch(btn.text) {
           case '+':
@@ -71,75 +130,75 @@ require(['lodash'], function(_) { //jshint ignore:line
           case '÷':
           case '%':
           case '√':
+            handleDisplayInput(btn);
+
+            if (parenthesisFlag) {
+              handleIntermediateOperation(btn);
+            } else {
+              this.intermediateStack = [];
+              operationFlag = true;
+              handleOperation(btn);
+            }
+
+            break;
+          case '(':
+            parenthesisFlag = true;
+            handleDisplayInput(btn);
+            handleIntermediateOperation();
+            break;
+          case ')':
+            handleDisplayInput(btn);
+            handleIntermediateOperation();
+            _self.inputStack.push(calculate(_self.intermediateStack));
+            parenthesisFlag = false;
+            break;
           case '=':
-            handleOperationPress(btn);
+            equalsFlag = true;
+            handleOperation(btn);
+            break;
+          case '+/-':
             break;
           default: 
-            this.displayText = (opFlag || eqFlag ? btn.text : this.displayText + btn.text).slice(0, displayLength);
-            opFlag = false;
-            eqFlag = false;
+            if (parenthesisFlag) {
+              handleDisplayInput(btn);
+              handleIntermediateOperation(btn);
+            } else {
+              handleDisplayInput(btn);
+              handleOperation(btn);
+            }
+
+            operationFlag = false;
+            equalsFlag = false;
          }
 
-         this.updateDisplay();
-      };
-
-      handleOperationPress = function(btn) {
-        var result;
-        
-        if (!opFlag && ctrl.displayText.length > 0) {
-          ctrl.inputStack.push(parseFloat(ctrl.displayText));
-          
-          if (ctrl.inputStack.length > 1) {
-            result = parseFloat(calculate().toString().slice(0, displayLength)); 
-            ctrl.inputStack = btn.text === '=' ? [] : [result];
-            ctrl.displayText = result.toString();
-          }
-          
-          if (!opFlag && btn.text !== '=') {
-            ctrl.inputStack.push(btn.text);
-            opFlag = true;
-          }
-          
-          eqFlag = (btn.class === 'equals');
-        }
-      };
-
-      calculate = function() {
-        var a = +ctrl.inputStack[0],
-            op = ctrl.inputStack[1],
-            b = +ctrl.inputStack[2];  
-
-        if (!methods[op] || isNaN(a) || isNaN(b)) {
-          return NaN;
-        }
-
-        return methods[op](+a, +b);
+         _self.updateDisplay();
       };
 
       this.render = function() {
-        var self = this,
-            keyboard = document.querySelector('.calculator-keyboard'),
+        var keyboard = document.querySelector('.calculator-keyboard'),
             templateView = document.querySelector('.calculator-template'),
             template = _.template(templateView.innerHTML);
 
-        keyboard.innerHTML = template({buttons: self.buttons});  
+        keyboard.innerHTML = template({buttons: _self.buttons});  
       };
 
       this.updateDisplay = function(value) {
         var displayInput = document.querySelector('.calculator-display__input');
 
-        displayInput.innerHTML = this.displayText;
+        displayInput.innerHTML = _self.displayText;
       };
 
       this.clearDisplay = function(value) {
         var displayInput = document.querySelector('.calculator-display__input');
 
-        this.inputStack = [];
-        this.displayText = '';
-        opFlag = false;
-        eqFlag = false;    
+        _self.inputStack = [];
+        _self.intermediateStack = [];
+        _self.displayText = '';
+        operationFlag = false;
+        equalsFlag = false; 
+        parenthesisFlag = false;   
 
-        displayInput.innerHTML = this.displayText;
+        displayInput.innerHTML = _self.displayText;
       };
     }
 
