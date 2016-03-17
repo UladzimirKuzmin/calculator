@@ -5,11 +5,12 @@ require(['lodash'], function(_) { //jshint ignore:line
     
     function Calculator() {
       var _self = this,
-          lastSymbol,
           displayLength = 13,
           operationFlag = false,
           equalsFlag = false,
           parenthesisFlag = false,
+          percentageFlag = false,
+          tempStr = null,
           methods = {
           '+': function(a, b) {
             return a + b;
@@ -23,8 +24,14 @@ require(['lodash'], function(_) { //jshint ignore:line
           '÷': function(a, b) {
             return a / b;
           },
-          '%': function(a, b) {
-            return a % b;
+          '%': function(a, b, operation) {
+            if (operation === '+') {
+              return a + (b/a)*100;
+            }
+
+            if (operation === '×') {
+              return a*b/100;
+            }
           },
           '√': function(a, b) {
             return Math.pow(b, 1/a);
@@ -32,7 +39,15 @@ require(['lodash'], function(_) { //jshint ignore:line
         };
 
       function handleIntermediateOperation(btn) {
+        var result;
+
         if (parenthesisFlag && typeof btn !== 'undefined') {
+          if (_self.intermediateStack.length === 3) {
+            result = calculate(_self.intermediateStack);
+            _self.intermediateStack = [];
+            _self.intermediateStack.push(result);
+          }
+
           _self.intermediateStack.push(btn.text);
         }
       }
@@ -40,8 +55,23 @@ require(['lodash'], function(_) { //jshint ignore:line
       function handleOperation(btn) {
         var result;
 
+        if (btn.text === '+/-') {
+          if (/-[0-9]+/.test(_self.inputStack[_self.inputStack.length - 1])) {
+            _self.inputStack[_self.inputStack.length - 1] = Math.abs(_self.inputStack[_self.inputStack.length - 1]);  
+          } else {
+          _self.inputStack[_self.inputStack.length - 1] = '-' + parseFloat(_self.inputStack[_self.inputStack.length - 1]); 
+          }
+          return;    
+        }
+
         if (operationFlag && !equalsFlag && _self.inputStack.length) {
-          _self.inputStack.push(btn.text);
+            if (_self.inputStack.length === 3) {
+              result = calculate(_self.inputStack);
+              _self.inputStack = [];
+              _self.inputStack.push(result);
+            }
+
+           _self.inputStack.push(btn.text);
           return;
         } 
 
@@ -50,14 +80,28 @@ require(['lodash'], function(_) { //jshint ignore:line
           return;
         }
 
-        if (!operationFlag && !equalsFlag && _self.inputStack.length) {
+        if (!operationFlag && !equalsFlag && !percentageFlag && _self.inputStack.length) {
           _self.inputStack[_self.inputStack.length - 1] = _self.inputStack[_self.inputStack.length - 1] + btn.text;
           return;
         }
 
-        if (equalsFlag) {
+        if (percentageFlag) {
           result = calculate(_self.inputStack);
-          _self.displayText = result.toString();
+          _self.displayText = result.toString().slice(0, displayLength);
+
+          _self.inputStack = [];
+          _self.inputStack.push(result);
+          
+          percentageFlag = false;
+        }
+
+        if (equalsFlag) {
+          if (!_self.inputStack.length) {
+            return;
+          }
+
+          result = calculate(_self.inputStack);
+          _self.displayText = result.toString().slice(0, displayLength);
 
           _self.inputStack = [];
           _self.inputStack.push(result);
@@ -75,18 +119,40 @@ require(['lodash'], function(_) { //jshint ignore:line
           return 'Error';
         }
 
+        if (percentageFlag) {
+          return methods['%'](+a, +b, op);
+        }
+
         return methods[op](+a, +b);
       }
 
       function handleDisplayInput(btn) {
-        if (btn.class === 'operation' && lastSymbol.class === 'operation' && btn.text !== '(' && btn.text !== ')') {
-          _self.displayText = _self.displayText.slice(0, -1);
-          _self.displayText = (_self.displayText + btn.text).slice(0, displayLength);
+        var regEx = /[0-9]+/g,
+            match,
+            index;
+
+        if (btn.text === '+/-' && !_self.displayText.length) {
+          return;
+        } else if (btn.text === '+/-') {
+          match = _self.displayText.match(regEx);
+
+          while ((match = regEx.exec(_self.displayText)) !== null) {
+            index = match.index;
+          }
+
+          if (typeof index === 'undefined') {
+            return;
+          }
+
+          if (/(-[0-9]+)/.test(_self.displayText)) {
+            _self.displayText = tempStr || '' + Math.abs(_self.inputStack[_self.inputStack.length - 1]);
+          } else {
+            tempStr = _self.displayText.slice(0, index) ? _self.displayText.slice(0, index) : '';
+            _self.displayText = tempStr + '(-' + parseFloat(_self.displayText.slice(index)) + ')';
+          }
         } else {
           _self.displayText = (_self.displayText + btn.text).slice(0, displayLength);
         }
- 
-        lastSymbol = btn;  
       }
 
       this.displayText = '';
@@ -128,7 +194,6 @@ require(['lodash'], function(_) { //jshint ignore:line
           case '-':
           case '×':
           case '÷':
-          case '%':
           case '√':
             handleDisplayInput(btn);
 
@@ -140,6 +205,11 @@ require(['lodash'], function(_) { //jshint ignore:line
               handleOperation(btn);
             }
 
+            break;
+          case '%':
+            percentageFlag = true;
+            handleDisplayInput(btn);
+            handleOperation(btn);
             break;
           case '(':
             parenthesisFlag = true;
@@ -157,6 +227,8 @@ require(['lodash'], function(_) { //jshint ignore:line
             handleOperation(btn);
             break;
           case '+/-':
+            handleDisplayInput(btn);
+            handleOperation(btn);
             break;
           default: 
             if (parenthesisFlag) {
