@@ -1,5 +1,5 @@
 require.config({ //jshint ignore:line
-	baseUrl: '/calculator/demo',
+	baseUrl: '/',
     paths: {
         lodash: '/js/lodash',
         app: '/js/app'
