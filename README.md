@@ -1,5 +1,7 @@
 # Calculator
 
+Demo here: http://uladzimirkuzmin.github.io/calculator/build
+
 Installation guide to compile application
 ------------
 
