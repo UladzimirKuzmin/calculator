@@ -51,13 +51,17 @@ require(['lodash'], function(_) { //jshint ignore:line
             return; 
           }
 
-          if (_self.intermediateStack.length === 3) {
+          if (operationFlag && _self.intermediateStack.length === 3) {
             result = calculate(_self.intermediateStack);
             _self.intermediateStack = [];
             _self.intermediateStack.push(result);
           }
 
-          _self.intermediateStack.push(btn.text);
+          if (!operationFlag && !equalsFlag && !percentageFlag && _self.intermediateStack) {
+            _self.intermediateStack[_self.intermediateStack.length - 1] = _self.intermediateStack[_self.intermediateStack.length - 1] + btn.text;
+          } else {
+            _self.intermediateStack.push(btn.text);
+          }
         }
       }
 
@@ -100,8 +104,6 @@ require(['lodash'], function(_) { //jshint ignore:line
 
           _self.inputStack = [];
           _self.inputStack.push(result);
-          
-          percentageFlag = false;
         }
 
         if (equalsFlag) {
@@ -114,8 +116,6 @@ require(['lodash'], function(_) { //jshint ignore:line
 
           _self.inputStack = [];
           _self.inputStack.push(result);
-
-          equalsFlag = false;
         }
       }  
 
@@ -160,7 +160,7 @@ require(['lodash'], function(_) { //jshint ignore:line
             _self.displayText = tempStr + '(-' + parseFloat(_self.displayText.slice(index)) + ')';
           }
         } else {
-          _self.displayText = (_self.displayText + btn.text).slice(0, displayLength);
+          _self.displayText = _self.displayText + btn.text;
         }
       }
 
@@ -206,6 +206,7 @@ require(['lodash'], function(_) { //jshint ignore:line
           case '√':
             handleDisplayInput(btn);
             if (parenthesisFlag) {
+              operationFlag = true;
               handleIntermediateOperation(btn);
             } else {
               this.intermediateStack = [];
@@ -252,6 +253,7 @@ require(['lodash'], function(_) { //jshint ignore:line
 
             operationFlag = false;
             equalsFlag = false;
+            percentageFlag = false;
          }
 
          _self.updateDisplay();
