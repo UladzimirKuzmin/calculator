@@ -26,7 +26,7 @@ require(['lodash'], function(_) { //jshint ignore:line
           },
           '%': function(a, b, operation) {
             if (operation === '+') {
-              return a + (b/a)*100;
+              return a + a*b/100;
             }
 
             if (operation === '×') {
