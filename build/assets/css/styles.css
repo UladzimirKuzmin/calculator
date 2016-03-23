@@ -1,0 +1,136 @@
+@import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+html, body, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  vertical-align: baseline; }
+
+article, aside, details, figcaption, figure, main,
+footer, header, hgroup, menu, nav, section {
+  display: block; }
+
+* {
+  box-sizing: border-box; }
+  *:focus {
+    outline: none; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  font-size: 62.5%;
+  font-family: "Droid Serif", serif; }
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+  font-size: 1.4rem;
+  line-height: 1.6rem; }
+
+.wrapper {
+  height: 100%;
+  text-align: center;
+  background: #2a4459; }
+  .wrapper:before {
+    content: "";
+    display: inline-block;
+    vertical-align: middle;
+    width: 0;
+    height: 100%; }
+
+.calculator-container {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: middle;
+  width: 40rem;
+  height: 40rem;
+  background: #fff;
+  border: 0.2rem solid #000;
+  box-shadow: 0 0.1rem 1rem 0 rgba(0, 0, 0, 0.8);
+  box-sizing: content-box; }
+
+.calculator-display {
+  width: calc(100% - 2rem);
+  margin: 0 0 0 2rem;
+  height: 10rem;
+  font-size: 4.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  background: #fff; }
+
+.clear {
+  display: block;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  height: 2.6rem;
+  width: 1.5rem;
+  background: #ccc;
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  cursor: pointer; }
+  .clear:after {
+    content: "";
+    display: block;
+    border-right: 1.3rem solid #ccc;
+    border-top: 1.3rem solid transparent;
+    border-bottom: 1.3rem solid transparent;
+    position: absolute;
+    top: 0;
+    left: -1.3rem; }
+
+.calculator-display__input {
+  font-family: "Droid Serif", serif;
+  position: absolute;
+  top: 0;
+  right: 5.2rem;
+  height: 100%;
+  width: 160rem;
+  line-height: 10rem;
+  text-align: right;
+  z-index: 1;
+  background: #fff; }
+
+.calculator-keyboard-wrapper {
+  width: 100%;
+  height: calc(100% - 10rem);
+  overflow: hidden; }
+
+.calculator-keyboard {
+  font-size: 0;
+  width: 100%; }
+  .calculator-keyboard.switched-to-operations {
+    transform: translateY(-30rem); }
+  .calculator-keyboard .button {
+    font-family: "Droid Serif", serif;
+    display: inline-block;
+    font-size: 3.5rem;
+    color: #333;
+    padding: 0;
+    text-align: center;
+    border: 0.1rem solid #000;
+    border-left: 0;
+    border-bottom: 0;
+    box-shadow: none;
+    width: 10rem;
+    height: 10rem;
+    line-height: 10rem;
+    cursor: pointer;
+    background: #ccc; }
+    .calculator-keyboard .button.switcher, .calculator-keyboard .button.equals {
+      background: #777; }
